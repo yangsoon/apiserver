@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  namespace: test
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.14.2
+      ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo
+data:
+  player_initial_lives: "3"
+  ui_properties_file_name: "user-interface.properties"
+  game.properties: |
+    enemy.types=aliens,monsters
+    player.maximum-lives=5
+  user-interface.properties: |
+    color.good=purple
+    color.bad=yellow
+    allow.textmode=true
+---
+apiVersion: apps.kruise.io/v1alpha1
+kind: CloneSet
+metadata:
+  labels:
+    app: sample
+  name: sample
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: sample
+  template:
+    metadata:
+      labels:
+        app: sample
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
